@@ -400,5 +400,5 @@ def ContactLensesTest():
 
 
 if __name__ == "__main__":
-    # fishTest()
-    ContactLensesTest()
+    fishTest()
+    #ContactLensesTest()
