@@ -179,10 +179,11 @@ def chooseBestFeatureToSplit(dataSet):
         # gain[信息增益]: 划分数据集前后的信息变化， 获取信息熵最大的值
         # 信息增益是熵的减少或者是数据无序度的减少。最后，比较所有特征中的信息增益，返回最好特征划分的索引值。
         infoGain = baseEntropy - newEntropy
-        print('infoGain=', infoGain, 'bestFeature=', i, baseEntropy, newEntropy)
+        
         if (infoGain > bestInfoGain):
             bestInfoGain = infoGain
             bestFeature = i
+        print('infoGain=', infoGain, 'bestFeature=', i, baseEntropy, newEntropy)
     return bestFeature
     # -----------选择最优特征的第一种方式 end------------------------------------
 
@@ -258,6 +259,7 @@ def createTree(dataSet, labels):
 
     # 选择最优的列，得到最优列对应的label含义
     bestFeat = chooseBestFeatureToSplit(dataSet)
+    print(labels)
     # 获取label的名称
     bestFeatLabel = labels[bestFeat]
     # 初始化myTree
@@ -400,5 +402,5 @@ def ContactLensesTest():
 
 
 if __name__ == "__main__":
-    fishTest()
-    #ContactLensesTest()
+    #fishTest()
+    ContactLensesTest()

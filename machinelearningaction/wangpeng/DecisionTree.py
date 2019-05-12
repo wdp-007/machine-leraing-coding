@@ -3,6 +3,7 @@
 
 import os
 import numpy as np
+import decisionTreePlot as dtPlot
 
 
 
@@ -62,10 +63,12 @@ def choose_best_feature(dataset, labels):
             info_entropy = cal_info_entropy(new_dataset, new_labels)
             cur_info_entropy += prob * info_entropy
 
+        infoGain = before_info_entropy - cur_info_entropy
+        
         if cur_info_entropy < min_info_entropy:
             min_info_entropy = cur_info_entropy
             best_feature_index = i
-
+        print('infoGain=', infoGain, 'bestFeature=', i, before_info_entropy, cur_info_entropy)
     return best_feature_index
 
 
@@ -73,20 +76,23 @@ def create_tree(dataset, labels, col_name):
     label_uniq = list(set(labels))
     if len(label_uniq) <= 1:
         return label_uniq[0]
-    if len(dataset[0]) <= 1:
+    if len(dataset[0]) <= 0:
         major_label = get_major_lable(labels)
         return major_label
 
     my_tree = {}
     best_feature_index = choose_best_feature(dataset, labels)
+    print(col_name)
     best_feature = col_name[best_feature_index]
     my_tree[best_feature] = {}
 
     best_feature_classes = list(set([data[best_feature_index] for data in dataset])) 
     del(col_name[best_feature_index])
     for feature_class in best_feature_classes:
+        # 很重要的一点 极容易出错，对于每一个子节点，应该传相同的col_name,而且col_name是传递的引用，可以被修改的，所以要复制
+        sub_col_name = col_name[:]
         new_dataset, new_labels = split_dataset(dataset, best_feature_index, feature_class, labels)
-        my_tree[best_feature][feature_class] = create_tree(new_dataset, new_labels, col_name)
+        my_tree[best_feature][feature_class] = create_tree(new_dataset, new_labels, sub_col_name)
 
     return my_tree
 
@@ -114,6 +120,22 @@ def fish_test():
     my_tree = create_tree(dataSet, labels, col_name)
     print(my_tree)
 
+def lense_test():
+    data_file = "./data/3.DecisionTree/lenses.txt"
+    dataset = []
+    labels = []
+    with open(data_file) as f:
+        for line in f:
+            array = line.strip().split("	")
+            dataset.append(array[:-1])
+            labels.append(array[-1])
+    #print(dataset)
+    #print(labels)
+    col_name = ['age', 'prescript', 'astigmatic', 'tearRate']
+    my_tree = create_tree(dataset, labels, col_name)
+    print(my_tree)
+    dtPlot.createPlot(my_tree)
+
 if __name__ == "__main__":
-    fish_test()
-    #ContactLensesTest()
+    #fish_test()
+    lense_test()
