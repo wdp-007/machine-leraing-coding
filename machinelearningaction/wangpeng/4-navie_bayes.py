@@ -10,6 +10,17 @@ p(xy)=p(x|y)p(y)=p(y|x)p(x)
 p(x|y)=p(y|x)p(x)/p(y)
 """
 
+def get_all_words(posting_list):
+    result = set()
+    for line in posting_list:
+        result = result | set(line)
+
+    return list(result)
+
+def word2vector(word_set, word):
+    
+
+
 def load_data_set():
     """
     创建数据集,都是假的 fake data set 
@@ -26,7 +37,7 @@ def load_data_set():
     return posting_list, class_vec
 
 def test1():
-    
+
 
 if __name__ == "__main__":
     #fish_test()
