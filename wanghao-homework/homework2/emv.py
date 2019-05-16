@@ -134,7 +134,16 @@ def video_ideal_filter(video_pyr, fps):
         filtered_layer = temporal_ideal_filter(layer_frames, lowcut, highcut, fps)
         filtered_video_pyr.append(filtered_layer)
     return filtered_video_pyr
-    
+
+# amplify color signal: only amplify the last lsyer of pyramid  
+def amplify_color_signal(origin_pyr, filtered_pyr, alpha):
+    max_leval = len(origin_pyr) - 1
+    origin_pyr[max_leval] += filtered_pyr[max_leval] * alpha
+
+    return origin_pyr
+
+def save_frames_to_video():
+     
 
 def main():
 
