@@ -164,6 +164,7 @@ def classify_naive_bayes(vec2classify, p0vec, p1vec, p_class1):
     # 可以理解为 1.单词在词汇表中的条件下，文件是good 类别的概率 也可以理解为 2.在整个空间下，文件既在词汇表中又是good类别的概率
     p1 = np.sum(vec2classify * p1vec) + np.log(p_class1)
     p0 = np.sum(vec2classify * p0vec) + np.log(1 - p_class1)
+    print("p1:{} p0:{}".format(p1, p0))
     if p1 > p0:
         return 1
     else:
@@ -201,11 +202,14 @@ def testing_naive_bayes():
         )
     # 4. 训练数据
     p0v, p1v, p_abusive = train_naive_bayes(np.array(train_mat), np.array(list_classes))
+    print("p0v: {} p1v: {} p_abusive: {}".format(p0v, p1v, p_abusive))
     # 5. 测试数据
     test_one = ['love', 'my', 'dalmation']
+    print(test_one)
     test_one_doc = np.array(set_of_words2vec(vocab_list, test_one))
     print('the result is: {}'.format(classify_naive_bayes(test_one_doc, p0v, p1v, p_abusive)))
     test_two = ['stupid', 'garbage']
+    print(test_two)
     test_two_doc = np.array(set_of_words2vec(vocab_list, test_two))
     print('the result is: {}'.format(classify_naive_bayes(test_two_doc, p0v, p1v, p_abusive)))
 
@@ -246,17 +250,17 @@ def spam_test():
         # 如果正常能读返回的都是：　ASCII text
         # 对于except需要处理的都是返回： Non-ISO extended-ASCII text, with very long lines
         try:
-            words = text_parse(open('data/4.NaiveBayes/email/spam/{}.txt'.format(i)).read())
+            words = text_parse(open('machinelearningaction/data/4.NaiveBayes/email/spam/{}.txt'.format(i)).read())
         except:
-            words = text_parse(open('data/4.NaiveBayes/email/spam/{}.txt'.format(i), encoding='Windows 1252').read())
+            words = text_parse(open('machinelearningaction/data/4.NaiveBayes/email/spam/{}.txt'.format(i), encoding='Windows 1252').read())
         doc_list.append(words)
         full_text.extend(words)
         class_list.append(1)
         try:
             # 添加非垃圾邮件
-            words = text_parse(open('data/4.NaiveBayes/email/ham/{}.txt'.format(i)).read())
+            words = text_parse(open('machinelearningaction/data/4.NaiveBayes/email/ham/{}.txt'.format(i)).read())
         except:
-            words = text_parse(open('data/4.NaiveBayes/email/ham/{}.txt'.format(i), encoding='Windows 1252').read())
+            words = text_parse(open('machinelearningaction/data/4.NaiveBayes/email/ham/{}.txt'.format(i), encoding='Windows 1252').read())
         doc_list.append(words)
         full_text.extend(words)
         class_list.append(0)
@@ -396,7 +400,7 @@ def get_top_words():
 
 
 if __name__ == "__main__":
-    # testing_naive_bayes()
-    # spam_test()
+    #testing_naive_bayes()
+    spam_test()
     # test_rss()
-    get_top_words()
+    #get_top_words()

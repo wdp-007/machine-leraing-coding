@@ -1,6 +1,7 @@
 import os
 import cv2
 import numpy as np
+from scipy.signal import butter, lfilter
 
 # build pyramid for single img: [frame_number,w,h,c]
 def build_laplacian_pyr(img, maxLeval, min_w=4):
@@ -71,14 +72,12 @@ def reconstruct_video_from_pyramid(pyramid_video):
     
     return video_frames
 
-
-
-
 # get video all frames
 def get_all_frames(video_path):
     if not os.path.exists(video_path):
         return 
     vidcap = cv2.VideoCapture(video_path)
+    fps = vidcap.get(cv2.CAP_PROP_FPS)
     success,image = vidcap.read()
     frames = []
     while success:
@@ -86,16 +85,10 @@ def get_all_frames(video_path):
         frames.append(image)
         success,image = vidcap.read()
     
-    return frames
-
-def main():
+    return frames, fps
 
 
-if __name__ == '__main__':
-
-
-from scipy.signal import butter, lfilter
-
+# band filter
 def butter_bandpass(lowcut, highcut, fs, order=5):
     nyq = 0.5 * fs
     low = lowcut / nyq
@@ -103,61 +96,48 @@ def butter_bandpass(lowcut, highcut, fs, order=5):
     b, a = butter(order, [low, high], btype='band')
     return b, a
 
-
 def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
     b, a = butter_bandpass(lowcut, highcut, fs, order=order)
     y = lfilter(b, a, data)
     return y
 
+def video_butter_bandpass(video_pyr, fps):
+    lowcut = 0.83/2
+    highcut = 1.0/2
+    filtered_video_pyr = []
+    for layer_frames in video_pyr:
+        filtered_layer = butter_bandpass_filter(layer_frames, lowcut, highcut, fps)
+        filtered_video_pyr.append(filtered_layer)
+    return filtered_video_pyr
 
-def run():
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from scipy.signal import freqz
+# temporal ideal filter
+def temporal_ideal_filter(tensor,low,high,fps,axis=0):
+   
+    fft=fftpack.fft(tensor,axis=axis)
+    frequencies = fftpack.fftfreq(tensor.shape[0], d=1.0 / fps)
+    bound_low = (np.abs(frequencies - low)).argmin()
+    bound_high = (np.abs(frequencies - high)).argmin()
+    if (bound_low==bound_high) and (bound_high<len(fft)-1):
+        bound_high+=1
+    fft[:bound_low] = 0
+    fft[bound_high:-bound_high] = 0
+    fft[-bound_low:] = 0
+    iff=fftpack.ifft(fft, axis=axis)
+    
+    return np.abs(iff)
 
-    # Sample rate and desired cutoff frequencies (in Hz).
-    fs = 5000.0
-    lowcut = 500.0
-    highcut = 1250.0
+def video_ideal_filter(video_pyr, fps):
+    lowcut = 0.83/2
+    highcut = 1.0/2
+    filtered_video_pyr = []
+    for layer_frames in video_pyr:
+        filtered_layer = temporal_ideal_filter(layer_frames, lowcut, highcut, fps)
+        filtered_video_pyr.append(filtered_layer)
+    return filtered_video_pyr
+    
 
-    # Plot the frequency response for a few different orders.
-    plt.figure(1)
-    plt.clf()
-    for order in [3, 6, 9]:
-        b, a = butter_bandpass(lowcut, highcut, fs, order=order)
-        w, h = freqz(b, a, worN=2000)
-        plt.plot((fs * 0.5 / np.pi) * w, abs(h), label="order = %d" % order)
-
-    plt.plot([0, 0.5 * fs], [np.sqrt(0.5), np.sqrt(0.5)],
-             '--', label='sqrt(0.5)')
-    plt.xlabel('Frequency (Hz)')
-    plt.ylabel('Gain')
-    plt.grid(True)
-    plt.legend(loc='best')
-
-    # Filter a noisy signal.
-    T = 0.05
-    nsamples = T * fs
-    t = np.linspace(0, T, nsamples, endpoint=False)
-    a = 0.02
-    f0 = 600.0
-    x = 0.1 * np.sin(2 * np.pi * 1.2 * np.sqrt(t))
-    x += 0.01 * np.cos(2 * np.pi * 312 * t + 0.1)
-    x += a * np.cos(2 * np.pi * f0 * t + .11)
-    x += 0.03 * np.cos(2 * np.pi * 2000 * t)
-    plt.figure(2)
-    plt.clf()
-    plt.plot(t, x, label='Noisy signal')
-
-    y = butter_bandpass_filter(x, lowcut, highcut, fs, order=6)
-    plt.plot(t, y, label='Filtered signal (%g Hz)' % f0)
-    plt.xlabel('time (seconds)')
-    plt.hlines([-a, a], 0, T, linestyles='--')
-    plt.grid(True)
-    plt.axis('tight')
-    plt.legend(loc='upper left')
-
-    plt.show()
+def main():
 
 
-run()
+if __name__ == '__main__':
+
