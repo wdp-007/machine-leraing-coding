@@ -166,9 +166,9 @@ def test():
     """
     data_arr, class_labels = load_data_set()
     # 注意，这里的grad_ascent返回的是一个 matrix, 所以要使用getA方法变成ndarray类型
-    # weights = grad_ascent(data_arr, class_labels).getA()
+    weights = grad_ascent(data_arr, class_labels).getA()
     # weights = stoc_grad_ascent0(np.array(data_arr), class_labels)
-    weights = stoc_grad_ascent1(np.array(data_arr), class_labels)
+    #weights = stoc_grad_ascent1(np.array(data_arr), class_labels)
     plot_best_fit(weights)
 
 
@@ -221,6 +221,7 @@ def colic_test():
         if int(classify_vector(np.array(line_arr), train_weights)) != int(curr_line[21]):
             error_count += 1
     error_rate = error_count / num_test_vec
+    print("err count is {}, total count is {}".format(error_count, num_test_vec))
     print('the error rate is {}'.format(error_rate))
     return error_rate
 
@@ -239,7 +240,7 @@ def multi_test():
 
 if __name__ == '__main__':
     # 请依次运行下面三个函数做代码测试
-    test()
-    # colic_test()
+    #test()
+     colic_test()
     # multi_test()
 

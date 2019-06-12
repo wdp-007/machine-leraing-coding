@@ -15,7 +15,7 @@
 * 
 * convert("PAYPALISHIRING", 3) should return "PAHNAPLSIIGYIR".
 * 
-*               
+*               PAHNAPLSIIGYIR
 **********************************************************************************/
 
 #include <iostream>
@@ -24,9 +24,33 @@
 using namespace std;
 
 string convert(string s, int numRows) {
-      
+    if(s.empty() || s.size() <= 1) return s;
+    if(numRows <= 1) return s;
+    string result = "";
+
+    int step1 = 2 * (numRows - 1);
+    for(int i = 1; i < numRows+1; i++) {
+        if(i == 1 || i == numRows) {
+            int cur = i - 1;
+            while(cur < s.size()) {
+                result += s[cur];
+                cur += step1;
+            }
+        } else {
+            int cur = i - 1;
+            int step2 = 2 * (numRows - 1) - 2*(i-1);
+            while(cur < s.size()) {
+                result += s[cur];
+                if((cur + step2) < s.size()) result += s[cur + step2];
+                cur += step1;
+            }
+        }
+    }
+    return result;
 }
 
 int main() {
+    string result = convert("PAYPALISHIRING", 4);
+    cout << result << endl;
     return  0;
 }
