@@ -13,7 +13,21 @@
 * 
 *               
 **********************************************************************************/
+#include <iostream>
+
+using namespace std;
 
 int lengthOfLastWord(string s) {
-    
+    if(s.size() <= 0) return 0;
+    int last = s.size()-1;
+    while(last >= 0 && s[last] == ' ') {
+        last--;
+    }
+    if(last < 0) return 0;
+    int result = 0;
+    while(last >= 0 && s[last] != ' ') {
+        result++;
+        last--;
+    }
+    return result;
 }
